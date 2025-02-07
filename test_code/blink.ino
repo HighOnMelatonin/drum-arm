@@ -1,6 +1,6 @@
 // blink onboard LED on and off every second
 
-#define ledPin = 2
+#define ledPin = 2  // LED connected to digital pin 2
 
 void setup() {
     // Set up the LED pin as an output:
