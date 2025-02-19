@@ -1,1 +1,3 @@
 *.msi
+/midifile
+/arduino_midi_library
