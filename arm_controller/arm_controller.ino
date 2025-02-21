@@ -8,8 +8,10 @@
 // Servo Pins
 #define rightTurnServo 32
 #define rightHitServo 33
-#define leftTurnServo 34
-#define leftHitServo 35
+#define leftTurnServo 25
+#define leftHitServo 26
+#define hitSpeedDelay 300
+#define swivelSpeedDelay 500
 
 // Servo constants
 #define upStart 90  // starting pos for updown
@@ -37,6 +39,7 @@ byte inByte;
 bool sdInitSuccess = false; //card init status
 bool dexterity = true;   // true: right, false: left
 long long timedelay;
+uint64_t previous_note;
 String filename = "/translated.csv";
 File csvFile;
 
@@ -83,12 +86,14 @@ void loop(){
               // Right is at start position (move to end)
               for (rightSPos = rightStart; rightSPos <= rightAngle; rightSPos += 1) {
                 servoRT.write(rightSPos);
+                delayMicroseconds(swivelSpeedDelay);
               }
             }
             else{
               // Right is at end position (return to start)
               for (rightSPos = rightAngle; rightSPos >= rightStart; rightSPos -= 1) {
                 servoRT.write(rightSPos);
+                delayMicroseconds(swivelSpeedDelay);
               }
             }
           }
@@ -99,12 +104,14 @@ void loop(){
               // Left is at start position (move to end)
               for (leftSPos = leftStart; leftSPos >= leftEnd; leftSPos -= 1) {
                 servoLT.write(leftSPos);
+                delayMicroseconds(swivelSpeedDelay);
               }
             }
             else{
               // Left is at end position (return to start)
               for (leftSPos = leftEnd; leftSPos <= leftStart; leftSPos += 1) {
                 servoLT.write(leftSPos);
+                delayMicroseconds(swivelSpeedDelay);
               }
             }
           }
@@ -132,27 +139,35 @@ void loop(){
   }
 
   // insert offset
-  delay(timedelay);
+  while((millis()-previous_note)< timedelay){
+    delayMicroseconds(100);
+  }
 
-    // hit drum
-    if (dexterity) {
-      // right hand hit
-      for (rightHPos = upStart; rightHPos <= endDown; rightHPos += 1) {
-        servoRH.write(rightHPos);
-      }
-      for (rightHPos = endDown; rightHPos >= upStart; rightHPos -= 1) {
-        servoRH.write(rightHPos);
-      }
+  // hit drum
+  if (dexterity) {
+    // right hand hit
+    for (rightHPos = upStart; rightHPos <= endDown; rightHPos += 1) {
+      servoRH.write(rightHPos);
+      delayMicroseconds(hitSpeedDelay);
     }
-    else{
-      // left hand hit
-      for (leftHPos = upStart; leftHPos <= endDown; leftHPos += 1) {
-        servoLH.write(leftHPos);
-      }
-      for (leftHPos = endDown; leftHPos >= upStart; leftHPos -= 1) {
-        servoLH.write(leftHPos);
-      }
+    previous_note = millis();
+    for (rightHPos = endDown; rightHPos >= upStart; rightHPos -= 1) {
+      servoRH.write(rightHPos);
+      delayMicroseconds(hitSpeedDelay);
     }
+  }
+  else{
+    // left hand hit
+    for (leftHPos = upStart; leftHPos <= endDown; leftHPos += 1) {
+      servoLH.write(leftHPos);
+      delayMicroseconds(hitSpeedDelay);
+    }
+    previous_note = millis();
+    for (leftHPos = endDown; leftHPos >= upStart; leftHPos -= 1) {
+      servoLH.write(leftHPos);
+      delayMicroseconds(hitSpeedDelay);
+    }
+  }
 
   dexterity = !dexterity;  // switch dexterity
   digitalWrite(ledPin, LOW);
