@@ -37,6 +37,7 @@ byte inByte;
 bool sdInitSuccess = false; //card init status
 bool dexterity = true;   // true: right, false: left
 long long timedelay;
+String filename = "/translated.csv";
 File csvFile;
 
 void setup(){
@@ -44,7 +45,7 @@ void setup(){
   pinMode(csPin, OUTPUT); // the hardware SS pin must be kept as an output or the SD library functions will not work
   Serial.begin(9600);
   SD.begin(csPin);
-  csvFile = SD.open("/translated.csv", FILE_READ);
+  csvFile = SD.open(filename, FILE_READ);
 
   servoRT.attach(rightTurnServo, 500, 2500);
   servoRH.attach(rightHitServo, 500, 2500);
